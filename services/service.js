@@ -18,6 +18,7 @@ const score=arr=>{
         for (let i=0;i<arr.length;i++){
 		arr[i]["score"]=1-arr[i].distance/arr[arr.length-1].distance
 		}
+       // return arr;
     } catch(err){
     console.error(err.message)
     throw err
@@ -25,4 +26,26 @@ const score=arr=>{
     
 }
 
-module.exports={distance,score}
+const suggestions= async (arr,q)=>{
+let scoredArray=new Array(10).fill(0);
+    let result= await arr.filter(item=>
+   item["Geographical Name"].toLowerCase().indexOf(q.name.toLowerCase()) !== -1);
+  	//calculate distance;  
+for(let item of result){
+    item['distance']=distance(item.Latitude-q.Latitude,item.Longitude-q.Longitude)
+}
+//sort the result
+	result.sort((a,b)=>a["distance"]-b["distance"])
+	
+	//only needs max 10 suggestions; 
+	if(result.length>10){scoredArray=result.slice(0,10)}
+	else{scoredArray=result}
+
+    //calculate the score;
+	score(scoredArray);
+//console.log(scoredArray)
+
+return scoredArray
+}
+
+module.exports={distance,score,suggestions}
